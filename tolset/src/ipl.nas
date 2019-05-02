@@ -30,7 +30,9 @@ entry:
 	MOV	SS, AX
 	MOV	SP, 0x7c00
 	MOV	DS, AX
+
 ; read disk
+
 	MOV	AX, 0x0820
 	MOV	ES, AX
 	MOV	CH, 0
