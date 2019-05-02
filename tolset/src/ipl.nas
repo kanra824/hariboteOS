@@ -1,5 +1,6 @@
 ; haribote-ipl
 ; TAB=4
+CYLS EQU	10
 	ORG	0x7c00
 
 	JMP	entry
@@ -30,11 +31,13 @@ entry:
 	MOV	SP, 0x7c00
 	MOV	DS, AX
 ; read disk
-	MOV	AS, 0x0820
+	MOV	AX, 0x0820
 	MOV	ES, AX
 	MOV	CH, 0
-	MOV	DH 0
+	MOV	DH, 0
 	MOV	CL, 2
+
+readloop:
 	MOV	SI, 0
 
 retry:
@@ -43,7 +46,7 @@ retry:
 	MOV	BX, 0
 	MOV	DL, 0x00	; A drive
 	INT	0x13		; disk BIOS
-	JNC	fin
+	JNC	next
 	ADD	SI, 1
 	CMP	SI, 5
 	JAE	error		; goto error if SI >= 5
@@ -51,6 +54,22 @@ retry:
 	MOV	DL, 0x00
 	INT	0x13
 	JMP	retry
+
+next:
+	MOV	AX, ES
+	ADD	AX, 0x0020
+	MOV	ES, AX
+	ADD	CL, 1
+	CMP	CL, 18
+	JBE	readloop
+	MOV	CL, 1
+	ADD	DH, 1
+	CMP	DH, 2
+	JB	readloop
+	MOV	DH, 0
+	ADD	CH, 1
+	CMP	CH, CYLS
+	JB	readloop
 
 fin:
 	HLT
