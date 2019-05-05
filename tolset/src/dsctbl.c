@@ -1,4 +1,4 @@
-/* GDTÇ‚IDTÇ»Ç«ÇÃÅA descriptor table ä÷åW */
+
 
 #include "bootpack.h"
 
@@ -8,7 +8,7 @@ void init_gdtidt(void)
 	struct GATE_DESCRIPTOR    *idt = (struct GATE_DESCRIPTOR    *) ADR_IDT;
 	int i;
 
-	/* GDTÇÃèâä˙âª */
+	
 	for (i = 0; i <= LIMIT_GDT / 8; i++) {
 		set_segmdesc(gdt + i, 0, 0, 0);
 	}
@@ -16,7 +16,7 @@ void init_gdtidt(void)
 	set_segmdesc(gdt + 2, LIMIT_BOTPAK, ADR_BOTPAK, AR_CODE32_ER);
 	load_gdtr(LIMIT_GDT, ADR_GDT);
 
-	/* IDTÇÃèâä˙âª */
+	
 	for (i = 0; i <= LIMIT_IDT / 8; i++) {
 		set_gatedesc(idt + i, 0, 0, 0);
 	}
@@ -28,7 +28,7 @@ void init_gdtidt(void)
 void set_segmdesc(struct SEGMENT_DESCRIPTOR *sd, unsigned int limit, int base, int ar)
 {
 	if (limit > 0xfffff) {
-		ar |= 0x8000; /* G_bit = 1 */
+		ar |= 0x8000; 
 		limit /= 0x1000;
 	}
 	sd->limit_low    = limit & 0xffff;
