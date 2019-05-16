@@ -3,8 +3,6 @@
 #include "bootpack.h"
 #include <stdio.h>
 
-void make_window8(unsigned char *buf, int xsize, int ysize, char *title);
-
 void HariMain(void)
 {
 	struct BOOTINFO *binfo = (struct BOOTINFO *) ADR_BOOTINFO;
@@ -19,34 +17,34 @@ void HariMain(void)
 
 	init_gdtidt();
 	init_pic();
-	io_sti(); /* IDT/PICの初期化が終わったのでCPUの割り込み禁止を解除 */
+	io_sti();
 	fifo8_init(&keyfifo, 32, keybuf);
 	fifo8_init(&mousefifo, 128, mousebuf);
-	io_out8(PIC0_IMR, 0xf9); /* PIC1とキーボードを許可(11111001) */
-	io_out8(PIC1_IMR, 0xef); /* マウスを許可(11101111) */
+	io_out8(PIC0_IMR, 0xf9);
+	io_out8(PIC1_IMR, 0xef);
 
 	init_keyboard();
 	enable_mouse(&mdec);
 	memtotal = memtest(0x00400000, 0xbfffffff);
 	memman_init(memman);
-	memman_free(memman, 0x00001000, 0x0009e000); /* 0x00001000 - 0x0009efff */
+	memman_free(memman, 0x00001000, 0x0009e000);
 	memman_free(memman, 0x00400000, memtotal - 0x00400000);
 
 	init_palette();
 	shtctl = shtctl_init(memman, binfo->vram, binfo->scrnx, binfo->scrny);
 	sht_back  = sheet_alloc(shtctl);
 	sht_mouse = sheet_alloc(shtctl);
-	sht_win   = sheet_alloc(shtctl);
+	sht_win = sheet_alloc(shtctl);
 	buf_back  = (unsigned char *) memman_alloc_4k(memman, binfo->scrnx * binfo->scrny);
-	buf_win   = (unsigned char *) memman_alloc_4k(memman, 160 * 52);
-	sheet_setbuf(sht_back, buf_back, binfo->scrnx, binfo->scrny, -1); /* 透明色なし */
+	buf_win = (unsigned char *) memman_alloc_4k(memman, 160 * 52);
+	sheet_setbuf(sht_back, buf_back, binfo->scrnx, binfo->scrny, -1);
 	sheet_setbuf(sht_mouse, buf_mouse, 16, 16, 99);
-	sheet_setbuf(sht_win, buf_win, 160, 52, -1); /* 透明色なし */
+	sheet_setbuf(sht_win, buf_win, 160, 52, -1);
 	init_screen8(buf_back, binfo->scrnx, binfo->scrny);
 	init_mouse_cursor8(buf_mouse, 99);
 	make_window8(buf_win, 160, 52, "counter");
 	sheet_slide(sht_back, 0, 0);
-	mx = (binfo->scrnx - 16) / 2; /* 画面中央になるように座標計算 */
+	mx = (binfo->scrnx - 16) / 2;
 	my = (binfo->scrny - 28 - 16) / 2;
 	sheet_slide(sht_mouse, mx, my);
 	sheet_slide(sht_win, 80, 72);
@@ -122,8 +120,7 @@ void HariMain(void)
 	}
 }
 
-void make_window8(unsigned char *buf, int xsize, int ysize, char *title)
-{
+void make_window8(unsigned char *buf, int xsize, int ysize, char *title) {
 	static char closebtn[14][16] = {
 		"OOOOOOOOOOOOOOO@",
 		"OQQQQQQQQQQQQQ$@",
@@ -153,14 +150,14 @@ void make_window8(unsigned char *buf, int xsize, int ysize, char *title)
 	boxfill8(buf, xsize, COL8_848484, 1,         ysize - 2, xsize - 2, ysize - 2);
 	boxfill8(buf, xsize, COL8_000000, 0,         ysize - 1, xsize - 1, ysize - 1);
 	putfonts8_asc(buf, xsize, 24, 4, COL8_FFFFFF, title);
-	for (y = 0; y < 14; y++) {
-		for (x = 0; x < 16; x++) {
+	for(y = 0;y< 14; y++) {
+		for(x = 0; x < 16; x++) {
 			c = closebtn[y][x];
-			if (c == '@') {
+			if(c == '@') {
 				c = COL8_000000;
-			} else if (c == '$') {
+			} else if(c == '$') {
 				c = COL8_848484;
-			} else if (c == 'Q') {
+			} else if(c == 'Q') {
 				c = COL8_C6C6C6;
 			} else {
 				c = COL8_FFFFFF;
